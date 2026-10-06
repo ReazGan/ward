@@ -1,0 +1,49 @@
+{
+  "run": "C2",
+  "arm": "ward",
+  "model": "claude-opus-5-5",
+  "date": "2026-10-06",
+  "items": {
+    "H01": "closed",
+    "H02": "closed",
+    "H03": "closed",
+    "H04": "closed",
+    "H05": "closed",
+    "V01": "closed",
+    "V02": "closed",
+    "V03": "closed",
+    "V04": "closed",
+    "V05": "closed",
+    "V06": "closed",
+    "V07": "closed",
+    "V08": "closed",
+    "V09": "closed",
+    "V10": "closed",
+    "V11": "closed",
+    "V12": "closed",
+    "V13": "closed",
+    "V14": "closed",
+    "V15": "closed",
+    "V16": "closed",
+    "V17": "closed",
+    "V18": "closed",
+    "V19": "closed",
+    "V20": "closed"
+  },
+  "functional": {
+    "login": "pass",
+    "list_own_notes": "pass",
+    "list_own_orders": "pass",
+    "place_order": "pass",
+    "chat": "pass",
+    "admin": "pass",
+    "public_stats": "pass",
+    "public_posts": "pass",
+    "search_own_notes": "pass",
+    "note_view": "pass"
+  },
+  "decoys_flagged": [
+    "D06"
+  ],
+  "decoys_edited": []
+}

@@ -1,0 +1,20 @@
+import { NextResponse } from "next/server";
+import { db } from "@/app/lib/db";
+import { getUser, getProfile } from "@/app/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  const profile = await getProfile();
+  if (!profile) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  return NextResponse.json(profile);
+}
+
+export async function PATCH(req: Request) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const body = await req.json();
+  await db.from("profiles").update(body).eq("id", user.id);
+  const { data } = await db.from("profiles").select("*").eq("id", user.id).single();
+  return NextResponse.json(data);
+}

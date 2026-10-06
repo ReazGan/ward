@@ -1,0 +1,3 @@
+-- Admin reads go through the server with the service key, so there is no
+-- client-facing admin policy here. Authorization is based on a server-owned
+-- role, never on claims the signed-in user can edit on themselves.

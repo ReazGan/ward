@@ -1,0 +1,10 @@
+{
+  "name": "ward",
+  "version": "0.1.0",
+  "description": "Skills that check an app built with an AI coding agent for exposed keys, open databases, unsafe defaults and unverified payments before it ships, then prove the fix.",
+  "author": { "name": "ReazGan", "url": "https://github.com/ReazGan" },
+  "homepage": "https://github.com/ReazGan/ward",
+  "repository": "https://github.com/ReazGan/ward",
+  "license": "MIT",
+  "keywords": ["security", "secrets", "supabase", "firebase", "stripe", "pre-deploy", "agent-skills"]
+}

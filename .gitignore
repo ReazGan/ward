@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node and build output
+node_modules/
+.next/
+dist/
+build/
+
+# Benchmark secrets are built at run time, never committed
+bench/app/.env.local
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db

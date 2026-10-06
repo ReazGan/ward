@@ -1,0 +1,48 @@
+name: bench
+
+# Oracle smoke run: every planted bug must be exploitable in bench/app and
+# closed in the fixed copy, with the functional checks passing in both.
+# Manual only. Not required for pull requests.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  oracle:
+    name: oracle on the vulnerable and the fixed app
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install pytest
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Install the app's dependencies
+        working-directory: bench/app
+        run: npm install --no-audit --no-fund
+      - name: Vulnerable app, every item exploitable
+        run: python bench/run_oracle.py --expect exploitable --out "$RUNNER_TEMP/vulnerable.json"
+      - name: Build the fixed copy
+        run: python bench/apply_solution.py --target "$RUNNER_TEMP/solved"
+      - name: Fixed app, every item closed
+        run: python bench/run_oracle.py --app-dir "$RUNNER_TEMP/solved" --expect closed --out "$RUNNER_TEMP/solved.json"
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: bench-oracle
+          path: |
+            ${{ runner.temp }}/vulnerable.json
+            ${{ runner.temp }}/solved.json
+          if-no-files-found: ignore

@@ -1,0 +1,15 @@
+# build + install output (reused across runs)
+app/node_modules/
+app/.next/
+app/package-lock.json
+
+# generated at run time, never committed
+app/.env.local
+app/.bench_fixtures.json
+.fixtures.json
+.oracle_results.json
+result.json
+.logs/
+__pycache__/
+.pytest_cache/
+app/next-env.d.ts

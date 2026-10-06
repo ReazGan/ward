@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  pytest:
+    name: pytest (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.9", "3.13"]
+        exclude:
+          # actions/python-versions has no Python 3.9 build for Ubuntu 26.04,
+          # so 3.9 stays on 24.04 when ubuntu-latest moves on.
+          - os: ubuntu-latest
+            python: "3.9"
+        include:
+          - os: ubuntu-24.04
+            python: "3.9"
+          # macos-latest is arm64; run the newest Python there.
+          - os: macos-latest
+            python: "3.13"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install pytest
+        run: python -m pip install --disable-pip-version-check pytest
+      # tests/ only: the bench/ oracle needs a running app and has its own workflow.
+      - name: Run tests
+        run: python -m pytest -q tests
+
+  checks:
+    name: frontmatter, manifests, rules.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: SKILL.md frontmatter and layout
+        run: python .github/scripts/check_frontmatter.py
+      - name: Manifests, skill set, shared copies, version bump
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then
+            python .github/scripts/check_manifests.py --no-rules-md --base "origin/$BASE_REF"
+          else
+            python .github/scripts/check_manifests.py --no-rules-md
+          fi
+      - name: references/rules.md matches the rule modules
+        run: python skills/preflight-audit/scripts/gen_rules_md.py --check
+
+  claude-plugin:
+    name: claude plugin validate and install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Validate, install and load the plugin (no login needed)
+        shell: bash
+        run: |
+          export HOME="$RUNNER_TEMP/home"
+          export CLAUDE_CONFIG_DIR="$RUNNER_TEMP/claude-config"
+          mkdir -p "$HOME" "$CLAUDE_CONFIG_DIR"
+          claude --version
+          claude plugin validate --strict .
+          claude plugin validate --strict .claude-plugin/plugin.json
+          claude plugin marketplace add ./
+          claude plugin install ward@ward
+          claude plugin details ward@ward
+          claude plugin list --json > "$RUNNER_TEMP/plugins.json"
+          python .github/scripts/check_manifests.py --claude-list "$RUNNER_TEMP/plugins.json"
+
+  skills-cli:
+    name: npx skills discovery and install
+    runs-on: ubuntu-latest
+    env:
+      DISABLE_TELEMETRY: "1"
+      DO_NOT_TRACK: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Discover exactly the three skills
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/skills-list.txt"
+          npx -y skills@1 add . --list < /dev/null > "$out" 2>&1 || { cat "$out"; exit 1; }
+          cat "$out"
+          python .github/scripts/check_manifests.py --skills-list "$out"
+      - name: Install a copy and run each script from it
+        shell: bash
+        run: |
+          repo="$PWD"
+          proj="$RUNNER_TEMP/project"
+          mkdir -p "$proj"
+          cd "$proj"
+          npx -y skills@1 add "$repo" --skill '*' -a claude-code --copy -y < /dev/null
+          found=0
+          for script in .claude/skills/*/scripts/[!_]*.py; do
+            [ -f "$script" ] || continue
+            echo "== $script --help"
+            python "$script" --help > /dev/null
+            found=$((found + 1))
+          done
+          if [ "$found" -eq 0 ]; then echo "no scripts were installed"; exit 1; fi
+          python .claude/skills/preflight-audit/scripts/scan_app.py --json --max-findings 5 "$proj" > scan.json || [ $? -eq 1 ]
+          python -c "import json, sys; r = json.load(open('scan.json', encoding='utf-8')); sys.exit(0 if r['tool'] == 'ward' else 1)"

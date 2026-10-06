@@ -1,0 +1,17 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+  .:
+    dependencies:
+      axios:
+        specifier: 1.14.1
+        version: 1.14.1
+
+packages:
+  axios@1.14.1:
+    resolution: {integrity: sha512-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000}
+    engines: {node: '>=18'}

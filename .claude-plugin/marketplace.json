@@ -1,0 +1,14 @@
+{
+  "name": "ward",
+  "description": "Security skills for apps built with Claude Code, Cursor, Codex, Lovable, Bolt and v0.",
+  "owner": { "name": "ReazGan", "url": "https://github.com/ReazGan" },
+  "plugins": [
+    {
+      "name": "ward",
+      "source": "./",
+      "description": "Find security holes in the app your coding agent just built, fix them, and prove they are closed.",
+      "category": "security",
+      "tags": ["security", "secrets", "supabase", "firebase", "stripe", "pre-deploy"]
+    }
+  ]
+}

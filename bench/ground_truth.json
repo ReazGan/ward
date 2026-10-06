@@ -1,0 +1,42 @@
+{
+  "description": "Ground truth for the ward benchmark app. 20 planted bugs, 5 hold-outs, 10 decoys. oracle is exploit (a runtime check proves it) or static (a config-only check reads the source). holdout items are real bugs placed off the files any skill text names. decoy items are safe code that looks risky; flagging or editing one is a false positive.",
+  "items": [
+    {"id": "V01", "file": "supabase/migrations/0001_init.sql", "line": 3, "class": "RLS disabled on profiles table", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V02", "file": "supabase/migrations/0002_policies.sql", "line": 10, "class": "Permissive USING(true) write policy on orders", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V03", "file": "app/lib/supabaseAdmin.ts", "line": 5, "class": "Service role key reaches the client bundle", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V04", "file": "app/components/Chat.tsx", "line": 6, "class": "LLM API key exposed via NEXT_PUBLIC in client code", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V05", "file": "app/api/chat/route.ts", "line": 5, "class": "LLM endpoint with no auth and no rate limit", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V06", "file": "app/api/stripe/webhook/route.ts", "line": 23, "class": "Stripe webhook signature not verified", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V07", "file": "app/api/checkout/route.ts", "line": 16, "class": "Checkout trusts client-sent amount", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V08", "file": "app/success/page.tsx", "line": 12, "class": "Fulfillment on success_url without verifying payment", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V09", "file": "app/api/orders/[id]/route.ts", "line": 13, "class": "IDOR: order read by id with no ownership check", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V10", "file": "app/actions/posts.ts", "line": 6, "class": "Server action edits a note by id with no ownership check", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V11", "file": "app/api/admin/users/route.ts", "line": 7, "class": "Admin API with no server-side role check", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V12", "file": "app/api/profile/route.ts", "line": 18, "class": "Mass assignment: role set from request body", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V13", "file": "supabase/migrations/0003_roles.sql", "line": 3, "class": "RLS policy reads user_metadata (user editable)", "severity": "high", "oracle": "static", "holdout": false, "decoy": false},
+    {"id": "V14", "file": "app/api/search/route.ts", "line": 11, "class": "SQL injection via string-built query", "severity": "critical", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V15", "file": "app/components/Message.tsx", "line": 3, "class": "XSS: dangerouslySetInnerHTML on user and model output", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V16", "file": "app/api/preview/route.ts", "line": 8, "class": "SSRF in URL fetcher", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V17", "file": "app/auth/callback/route.ts", "line": 8, "class": "Open redirect: next param not validated", "severity": "medium", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V18", "file": "next.config.js", "line": 15, "class": "CORS allow-origin wildcard with credentials", "severity": "high", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V19", "file": "app/lib/session.ts", "line": 5, "class": "Session cookie without HttpOnly/Secure; no security headers", "severity": "medium", "oracle": "exploit", "holdout": false, "decoy": false},
+    {"id": "V20", "file": "package.json", "line": 1, "class": "No npm install hardening and a known-bad pinned version", "severity": "high", "oracle": "static", "holdout": false, "decoy": false},
+
+    {"id": "H01", "file": "app/api/graphql/route.ts", "line": 16, "class": "IDOR inside a GraphQL resolver", "severity": "high", "oracle": "exploit", "holdout": true, "decoy": false},
+    {"id": "H02", "file": "next.config.js", "line": 8, "class": "Blind SSRF via image optimizer remotePatterns wildcard", "severity": "medium", "oracle": "static", "holdout": true, "decoy": false},
+    {"id": "H03", "file": "app/api/rag/route.ts", "line": 48, "class": "Prompt injection from a RAG doc reaching an outbound tool (lethal trifecta)", "severity": "high", "oracle": "exploit", "holdout": true, "decoy": false},
+    {"id": "H04", "file": "app/api/stripe/webhook/route.ts", "line": 7, "class": "Webhook replay: no idempotency on fulfillment", "severity": "high", "oracle": "exploit", "holdout": true, "decoy": false},
+    {"id": "H05", "file": "requirements.txt", "line": 1, "class": "Known-bad dep, http URL spec, no install hardening", "severity": "critical", "oracle": "static", "holdout": true, "decoy": false},
+
+    {"id": "D01", "file": "app/lib/supabaseClient.ts", "line": 6, "class": "NEXT_PUBLIC anon key (public by design)", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D02", "file": "app/lib/stripeClient.ts", "line": 5, "class": "pk_test publishable key (public)", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D03", "file": "app/lib/firebaseClient.ts", "line": 5, "class": "Firebase web apiKey (identifier, not a secret)", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D04", "file": "supabase/migrations/0004_public_posts.sql", "line": 6, "class": "USING(true) read on a public, write-closed, PII-free table", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D05", "file": "app/components/SafeHtml.tsx", "line": 6, "class": "dangerouslySetInnerHTML fed DOMPurify.sanitize", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D06", "file": "app/api/users/route.ts", "line": 12, "class": "Prisma $queryRaw tagged template (parameterized)", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D07", "file": "app/api/invoice/[id]/route.ts", "line": 15, "class": "findUnique by id followed by an owner 403", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D08", "file": "app/components/Markdown.tsx", "line": 5, "class": "react-markdown without rehype-raw (safe)", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D09", "file": "app/api/public-stats/route.ts", "line": 16, "class": "CORS wildcard without credentials on public read-only data", "severity": "info", "oracle": "static", "holdout": false, "decoy": true},
+    {"id": "D10", "file": "middleware.ts", "line": 7, "class": "Middleware optimistic redirect with DAL enforcement", "severity": "info", "oracle": "static", "holdout": false, "decoy": true}
+  ]
+}
