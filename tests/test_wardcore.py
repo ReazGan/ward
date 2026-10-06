@@ -51,7 +51,9 @@ def test_norm_resolves(tmp_path):
     (tmp_path / "a b").mkdir()
     p = wc.norm(str(tmp_path / "a b"))
     assert p.is_absolute() and p.exists()
-    assert wc.norm(str(tmp_path).replace("/", "\\")) == tmp_path.resolve()
+    if os.name == "nt":
+        # backslash is a separator only on Windows; on POSIX it is a filename character
+        assert wc.norm(str(tmp_path).replace("/", "\\")) == tmp_path.resolve()
     assert wc.norm('"%s"' % tmp_path) == tmp_path.resolve()
     assert wc.norm(None) == Path(".").resolve()
 

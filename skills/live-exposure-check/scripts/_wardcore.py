@@ -95,7 +95,7 @@ def convert_msys_path(text: str, windows: Optional[bool] = None) -> str:
 def norm(path: Union[str, Path, None] = ".") -> Path:
     """Resolve a user-supplied path to an absolute Path.
 
-    Accepts / and \\ separators, ~, and Git Bash drive paths (/c/...).
+    Accepts ~, Git Bash drive paths (/c/...) and, on Windows, either separator.
     The target defaults to the current directory.
     """
     if path is None or str(path).strip() == "":
